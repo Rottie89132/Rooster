@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type Rooster_Lessons {
+  Class      String
+  EndClass   String
+  RealTime   String
+  Room       String
+  StartClass String
+}
+
+model gebruikers {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  Password String 
+  Role     String
+  Username String
+}
+
+model rooster {
+  id      String           @id @default(auto()) @map("_id") @db.ObjectId
+  Lessons Rooster_Lessons[]
+  Name    String
+  Status  String
+}

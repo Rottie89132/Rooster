@@ -17,8 +17,10 @@ async function UserCache(){
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
-app.put('/api/status', async (req, res) => {
-    res.status(200).json({ message: "The request was successful"});
+app.get('/api/status', async (req, res) => {
+    const Data = await prisma.rooster.findMany({ where: {Name: "Weekend"} })
+    if(Data) return res.status(200).json({ message: "The request was successful"});
+    return res.status(404).json({ message: "The requested resource could not be found"});
 })
 
 app.get('/api/rooster', async (req, res) => {

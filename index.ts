@@ -11,7 +11,7 @@ const User: any = new Map()
 
 async function UserCache(){
     const UserList = await prisma.gebruikers.findMany()
-    UserList.forEach(user => {User.set(user.Username, { Password: user.Password})})
+    UserList.forEach((user: { Username: any; Password: any; }) => {User.set(user.Username, { Password: user.Password})})
 } UserCache()
 
 app.use(express.json());
@@ -59,12 +59,40 @@ app.post('/api/rooster', async (req, res) => {
             const updated = await prisma.rooster.findMany({ where: { Name: Name}});
             return res.status(200).json({ message: 'The request was successful', response: updated[0]});
         } 
+
         return res.status(404).json({ message: 'The requested resource could not be found' });
     } return res.status(401).json({ message: 'Access to the requested resource is unauthorized' });
 });
 
 app.put('/api/rooster', async (req, res) => {
 
+    const Header = req.headers
+    if (!Header.authorization)
+        return res.status(401).json({ message: 'Access to the requested resource is unauthorized' });
+
+    const authHeader: any = Header.authorization?.split(",");
+    const [Password, Username] = authHeader
+
+    const USER = User.get(Username)
+    const match = USER ? await bcrypt.compare(Password, USER.Password) : false;
+
+    if (USER && match) {
+        const { Name, Class, data } = req.body
+
+        const ItemGet = await prisma.rooster.findMany({ where: { Name: Name } });
+        const ItemFound = ItemGet[0].Lessons.find((item: { Class: any; }) => item.Class === Class)
+
+        if (ItemFound) {
+            const updatedData = ItemGet[0].Lessons.map((lesson: { Class: any; }) => {
+                if (lesson.Class === Class) return data;
+                return lesson;
+            });
+            await prisma.rooster.updateMany({ where: { Name: Name }, data: { Lessons: updatedData } });
+            return res.status(200).json({ message: 'The request was successful', response: updatedData });
+        }
+        return res.status(404).json({ message: 'The requested resource could not be found' });
+    }
+    return res.status(401).json({ message: 'Access to the requested resource is unauthorized' });
 })
 
 app.delete('/api/rooster', async (req, res) => {
@@ -80,17 +108,17 @@ app.delete('/api/rooster', async (req, res) => {
     if (USER && match) {
         const { Name, Class } = req.body
         const ItemGet = await prisma.rooster.findMany({ where: { Name: Name}});
-        const ItemFound = ItemGet[0].Lessons.find(item => item.Class === Class)
+        const ItemFound = ItemGet[0].Lessons.find((item: { Class: any; }) => item.Class === Class)
         
         if (ItemFound) {
-            const data = ItemGet[0].Lessons = ItemGet[0].Lessons.filter(lesson => lesson.Class !== Class);
+            const data = ItemGet[0].Lessons = ItemGet[0].Lessons.filter((lesson: { Class: any; }) => lesson.Class !== Class);
             await prisma.rooster.updateMany({ where: { Name: Name }, data: { Lessons: data }});
             return res.status(200).json({ message: 'The request was successful', response: data});
         }
         return res.status(404).json({ message: 'The requested resource could not be found' });
     } return res.status(401).json({ message: 'Access to the requested resource is unauthorized' });
 
-    
 })
 
-server.listen(3000);
+server.listen(4000);
+

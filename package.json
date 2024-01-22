@@ -1,11 +1,13 @@
 {
   "name": "prisma",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express API with Prisma and MongoDB: This repository serves as an API boilerplate for creating a backend system that supports data posting, deletion, and retrieval.\r Built with Express.js and Prisma, it provides seamless integration with MongoDB as the database. The API includes authentication mechanisms to ensure secure access to the endpoints.",
   "main": "index.ts",
   "scripts": {
     "start": "npx ts-node index.ts",
+    "dev": "nodemon --exec ts-node index.ts",
     "build": "npx prisma studio"
+
   },
   "keywords": [],
   "author": "",
@@ -13,13 +15,14 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.17",
-    "@types/node": "^20.2.5",
-    "prisma": "^4.14.1",
+    "@types/node": "^20.4.2",
+    "nodemon": "^3.0.3",
+    "prisma": "^5.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@prisma/client": "^4.14.1",
+    "@prisma/client": "^5.0.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "express": "^4.18.2"
